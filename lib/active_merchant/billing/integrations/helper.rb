@@ -39,6 +39,11 @@ module ActiveMerchant #:nodoc:
           end
         end
 
+        def delete_field( name )
+          return if name.blank?
+          @fields.delete_if {|k,v| k.eql?(name.to_s)}
+        end
+
         def billing_address(params = {})
           add_address(:billing_address, params)
         end
