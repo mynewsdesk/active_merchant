@@ -7,6 +7,7 @@ class DibsFlexwinHelperTest < Test::Unit::TestCase
     @helper = DibsFlexwin::Helper.new( '3993', 'testmerchant', 
       :amount => 1000,
       :currency => 'NOK',
+      :recurring => false,
       :security_key1 => "this_is_key1",
       :security_key2 => "this_is_key2"
     )

@@ -11,6 +11,11 @@ module ActiveMerchant #:nodoc:
           def initialize(post, options )
             requires!( options, :security_key1, :security_key2, :remote_ip, :currency, :amount)
             super
+            @recurring = false
+          end
+
+          def recurring?
+            @recurring
           end
 
           def complete?
@@ -100,6 +105,17 @@ module ActiveMerchant #:nodoc:
             raise StandardError, "Invalid sender (#{@options[:remote_ip]})." unless valid_sender?(@options[:remote_ip])
             return true unless params.include?("authkey")
             raise ArgumentError, "Missing security_key1 or security_key2." unless @options[:security_key1] && @options[:security_key2]
+
+            rkey = md5_authkey_preauth( @options[:security_key1], @options[:security_key2],
+                                transaction_id(),
+                                currency()
+            )
+
+            if (rkey.eql?(security_key()))
+              @recurring = true
+              return true
+            end
+
             key = md5_authkey( @options[:security_key1], @options[:security_key2],
                                 transaction_id(),
                                 currency(),

@@ -7,7 +7,8 @@ module ActiveMerchant #:nodoc:
           include Common
 
           def initialize(order, account, options = {})
-            requires!(options, :security_key1, :security_key2)
+            requires!(options, :recurring, :security_key1, :security_key2)
+            @recurring = options.delete(:recurring)
             @key1 = options.delete(:security_key1)
             @key2 = options.delete(:security_key2)
             super
@@ -16,6 +17,7 @@ module ActiveMerchant #:nodoc:
             add_field( mappings[:unique_orderid], "yes")
             add_field( "test", "yes") if ActiveMerchant::Billing::Base.integration_mode == :test
             security_key( true )
+            make_preauth() if recurring?
           end
 
           def currency=( currency_code )
@@ -77,8 +79,16 @@ module ActiveMerchant #:nodoc:
             end
           end
 
+          def make_preauth
+            add_field( mappings[:preauth], "yes")
+          end
+
           def make_ticket( use = false )
             raise NotImplementedError, "Make ticket doesn't support 3D Secure, unique order id and md5sum."
+          end
+
+          def recurring?
+            @recurring ||= false
           end
 
           mapping :customer, :name => 'delivery1.Name', :comment => 'delivery3.Comment'
@@ -105,6 +115,7 @@ module ActiveMerchant #:nodoc:
           mapping :skip_last_page, 'skiplastpage'
           mapping :security_key, 'md5sum'
           mapping :make_ticket, 'maketicket'
+          mapping :preauth, 'preauth'
         end
       end
     end

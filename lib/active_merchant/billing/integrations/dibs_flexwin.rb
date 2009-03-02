@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/dibs_flexwin/common.rb'
 require File.dirname(__FILE__) + '/dibs_flexwin/helper.rb'
 require File.dirname(__FILE__) + '/dibs_flexwin/notification.rb'
 require File.dirname(__FILE__) + '/dibs_flexwin/return.rb'
+require File.dirname(__FILE__) + '/dibs_flexwin/recurring.rb'
 
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
@@ -83,10 +84,15 @@ module ActiveMerchant #:nodoc:
       #     end
       #   end
       module DibsFlexwin
-        URL = 'https://payment.architrade.com/paymentweb/start.action'
+        FLEXWIN_URL = 'https://payment.architrade.com/paymentweb/start.action'
+        TICKET_URL  = 'https://payment.architrade.com/cgi-ssl/ticket_auth.cgi'
 
         def self.service_url
-          URL
+          FLEXWIN_URL
+        end
+
+        def self.recurring_url
+          TICKET_URL
         end
 
         def self.notification(post, options = {})
