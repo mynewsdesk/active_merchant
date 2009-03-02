@@ -2,6 +2,44 @@ module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     module Integrations #:nodoc:
       module DibsFlexwin
+        # The syntax for the recurring class:
+        #
+        #  *** Remember to set :recurring => true in the payment_service_for-helper. ***
+        #
+        #  class PaymentsController < ApplicationController
+        #    include ActiveMerchant::Billing::Integrations
+        #
+        #    # Setting the interface in test mode. Remove in production mode.
+        #    ActiveMerchant::Billing::Base.integration_mode = :test
+        #
+        #    # Code for performing a recurring payment.
+        #    def recurring
+        #      rec = DibsFlexwin::Recurring.new( <orderid>, <merchant id>,
+        #             :security_key1 => <this_is_key1>,
+        #             :security_key2 => <this_is_key2>,
+        #             :currency      => <currency>,
+        #             :amount        => <amount>,
+        #             :ticket        => <transaction_id from notify_url>
+        #      )
+        #
+        #      begin
+        #        rec.capture_now
+        #
+        #        if rec.potential_fraud?
+        #          logger.warn { "Got a potential fraud. Look into it." }
+        #        elsif rec.complete?
+        #          logger.info { "Got a completed capture, updated order and other stuff." }
+        #        else
+        #          logger.warn { "Transaction declined. #{rec.status()}, #{rec.reason_code()}, #{rec.reason}"}
+        #        end
+        #
+        #      rescue ActiveMerchant::Billing::Integrations::DibsFlexwin::Error => e
+        #        logger.warn { "Got a DIBS error: #{e.message}" }
+        #      rescue => e
+        #        logger.warn("Illegal notification received: #{e.message}")
+        #      end
+        #    end
+        # 
         class Recurring
           include PostsData
           include RequiresParameters
@@ -88,12 +126,9 @@ module ActiveMerchant #:nodoc:
                                currency(),
                                gross_cents()
             )
-
             key_match = key.eql?(security_key())
             raise ActiveMerchant::Billing::Integrations::DibsFlexwin::Error, "Invalid authkey" unless key_match
-
             key_match
-
           end
 
           def capture_now( )
@@ -108,7 +143,6 @@ private
               'User-Agent'     => "Active Merchant -- http://activemerchant.org"
             )
             @response = parse(r)
-
           end
 
           def currency=( currency_code )
